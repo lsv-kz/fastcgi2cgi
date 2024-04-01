@@ -1,0 +1,2 @@
+objs/*.o
+fcgi2cgi
