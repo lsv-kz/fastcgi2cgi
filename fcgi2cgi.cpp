@@ -298,9 +298,10 @@ void response_(int sock, int count_conn)
 void response(int fcgi_sock, Connect *conn, int count_conn)
 {
     FCGI_server fcgi(fcgi_sock, conf->TimeoutCGI);
-    if (fcgi.error())
+    int err = fcgi.error();
+    if (err)
     {
-        printf("<%s:%d> Error create fcgi\n", __func__, __LINE__);
+        fprintf(stderr, "<%s:%d> Error create fcgi: %d\n", __func__, __LINE__, err);
         return;
     }
 
@@ -354,7 +355,7 @@ void response(int fcgi_sock, Connect *conn, int count_conn)
 
     if (fcgi.error())
     {
-        printf("<%s:%d> Error fcgi_get_param()\n", __func__, __LINE__);
+        fprintf(stderr, "<%s:%d> Error fcgi_get_param()\n", __func__, __LINE__);
         return;
     }
 
@@ -468,9 +469,10 @@ void response(int fcgi_sock, Connect *conn, int count_conn)
 
     //fcgi << "";
     fcgi.fcgi_end_request();
-    if (fcgi.error())
+    err = fcgi.error();
+    if (err)
     {
-        printf("<%s:%d> Error, send %d bytes\n", __func__, __LINE__, fcgi.send_bytes());
+        fprintf(stderr, "<%s:%d> Error (%d), send %d bytes\n", __func__, __LINE__, err, fcgi.send_bytes());
     }
 }
 //======================================================================

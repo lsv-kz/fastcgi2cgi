@@ -19,8 +19,8 @@ if(($meth =~ /POST/))
 {
     $data = uri_unescape(<STDIN>);
 #    my $length = $ENV{CONTENT_LENGTH};
-#	read STDIN, $data, $length;
-#	$data = uri_unescape($data);
+#   read STDIN, $data, $length;
+#   $data = uri_unescape($data);
 }
 
 print "Content-type: text/html; charset=utf-8\n\n";
@@ -40,7 +40,7 @@ print "   </table>
   <p>$data</p>
   <form action=\"env.pl\" method=\"$meth\">
    <input type=\"hidden\" name=\"name\" value=\".-./. .+.!.?.,.~.#.&.>.<.^.\">
-   <input type=\"submit\" value=\"Get \$ENV\">
+   <input type=\"submit\" value=\"Get ENV\">
   </form>
  </body>
 </html>";

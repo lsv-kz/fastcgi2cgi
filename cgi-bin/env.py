@@ -3,8 +3,6 @@
 import os, datetime, sys
 import codecs
 
-sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach(), errors='surrogateescape')
-
 print("Content-Type: text/html\n\n")
 print("""<!DOCTYPE HTML>
 <html>
