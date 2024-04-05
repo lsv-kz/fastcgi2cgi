@@ -360,10 +360,16 @@ void response(int fcgi_sock, Connect *conn, int count_conn)
     }
 
     int ret = cgi(fcgi, conn);
-    if (ret)
+    if (ret > 0)
     {
+        fcgi << "Status: " << status_resp(ret) << "\r\n";
+        fcgi << "Content-Type: text/html\r\n\r\n";
+        fcgi << "<h3>" << status_resp(ret) << "</h3>";
+        fcgi.fcgi_end_request();
         return;
     }
+    else if (ret < 0)
+        return;
 
     for ( ; ; )
     {// --------- fcgi_stdin --------
@@ -499,4 +505,36 @@ int find_env_var(string& s, string& var)
         return -1;
     }
     return 0;
+}
+//======================================================================
+const char *status_resp(int st)
+{
+    switch (st)
+    {
+        case RS200:
+            return "200 OK";
+        case RS400:
+            return "400 Bad Request";
+        case RS403:
+            return "403 Forbidden";
+        case RS404:
+            return "404 Not Found";
+        case RS405:
+            return "405 Method Not Allowed";
+        case RS411:
+            return "411 Length Required";
+        case RS413:
+            return "413 Request entity too large";
+        case RS500:
+            return "500 Internal Server Error";
+        case RS501:
+            return "501 Not Implemented";
+        case RS502:
+            return "502 Bad Gateway";
+        case RS504:
+            return "504 Gateway Time-out";
+        default:
+            return "500 Internal Server Error";
+    }
+    return "";
 }

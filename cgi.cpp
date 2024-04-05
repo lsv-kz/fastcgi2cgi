@@ -39,7 +39,7 @@ int cgi_fork(FCGI_server& fcgi, Connect *conn)
     if (conn->pid < 0)
     {
         fprintf(stderr, "<%s:%d> Error fork(): %s\n", __func__, __LINE__, strerror(errno));
-        return -1;
+        return RS500;
     }
     else if (conn->pid == 0)
     {
@@ -158,7 +158,7 @@ int cgi(FCGI_server& fcgi, Connect *conn)
     if (n == -1)
     {
         fprintf(stderr, "<%s:%d> Error pipe()=%d\n", __func__, __LINE__, n);
-        return -1;
+        return RS500;
     }
     
     const int flags = 1;
@@ -170,7 +170,7 @@ int cgi(FCGI_server& fcgi, Connect *conn)
     if (n == -1)
     {
         fprintf(stderr, "<%s:%d> Error pipe()=%d\n", __func__, __LINE__, n);
-        return -1;
+        return RS500;
     }
 
     ioctl(conn->cgi_err[0], FIONBIO, &flags);
@@ -182,20 +182,20 @@ int cgi(FCGI_server& fcgi, Connect *conn)
         if (conn->str_content_length.size() == 0)
         {
             fprintf(stderr, "<%s:%d> Content-Type \?\n", __func__, __LINE__);
-            return -1;
+            return RS400;
         }
 
         if (conn->content_type.size() == 0)
         {
             fprintf(stderr, "<%s:%d> 411 Length Required\n", __func__, __LINE__);
-            return -1;
+            return RS411;
         }
         
         n = pipe(conn->cgi_in);
         if (n == -1)
         {
             fprintf(stderr, "<%s:%d> Error pipe()=%d\n", __func__, __LINE__, n);
-            return -1;
+            return RS500;
         }
 
         ioctl(conn->cgi_in[1], FIOCLEX);
@@ -211,7 +211,7 @@ int cgi(FCGI_server& fcgi, Connect *conn)
     else
     {
         fprintf(stderr, "<%s:%d> Error HTTP Method: %s\n", __func__, __LINE__, conn->str_http_method.c_str());
-        return -1;
+        return RS501;
     }
     
     if (conf->mode == MULTI_SCRIPTS)
@@ -221,7 +221,7 @@ int cgi(FCGI_server& fcgi, Connect *conn)
         if (stat(conn->path.c_str(), &st) == -1)
         {
             fprintf(stderr, "<%s:%d> script (%s) not found\n", __func__, __LINE__, conn->path.c_str());
-            return -1;
+            return RS404;
         }
     }
     else

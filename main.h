@@ -41,6 +41,15 @@ int poll_in(int fd1, int fd2, int *ret1, int *ret2, int timeout);
 std::string get_time();
 //======================================================================
 enum MODE { ONE_SCRIPT = 1, MULTI_SCRIPTS };
+
+enum {
+    RS101 = 101,
+    RS200 = 200,RS204 = 204,RS206 = 206,
+    RS301 = 301, RS302,
+    RS400 = 400,RS401,RS402,RS403,RS404,RS405,RS406,RS407,
+    RS408,RS411 = 411,RS413 = 413,RS414,RS415,RS416,RS417,RS418,
+    RS500 = 500,RS501,RS502,RS503,RS504,RS505
+};
 //======================================================================
 class Config
 {
@@ -83,6 +92,7 @@ struct Connect
     }
 };
 //======================================================================
+const char *status_resp(int st);
 void kill_script(Connect *conn);
 int wait_pid(Connect *conn);
 
