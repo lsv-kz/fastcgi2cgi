@@ -45,7 +45,6 @@ void signal_handler(int sig)
     }
     else
         printf("<%s:%d> sig=%d\n", __func__, __LINE__, sig);
-    fflush(stdout);
 }
 //======================================================================
 int check_path(string& path)
@@ -359,23 +358,23 @@ void response(int fcgi_sock, Connect *conn, int count_conn)
         return;
     }
 
-    int ret = cgi(fcgi, conn);
-    if (ret > 0)
+    err = cgi(fcgi, conn);
+    if (err > 0)
     {
-        fcgi << "Status: " << status_resp(ret) << "\r\n";
+        fcgi << "Status: " << status_resp(err) << "\r\n";
         fcgi << "Content-Type: text/html\r\n\r\n";
-        fcgi << "<h3>" << status_resp(ret) << "</h3>";
+        fcgi << "<h3>" << status_resp(err) << "</h3>";
         fcgi.fcgi_end_request();
         return;
     }
-    else if (ret < 0)
+    else if (err < 0)
         return;
 
     for ( ; ; )
     {// --------- fcgi_stdin --------
         const int size_buf = 4095;
         char buf[size_buf + 1];
-        ret = fcgi.fcgi_stdin(buf, size_buf);
+        int ret = fcgi.fcgi_stdin(buf, size_buf);
         if (ret < 0)
         {
             fprintf(stderr, "<%s:%d> Error fcgi_stdin()\n", __func__, __LINE__);
@@ -397,7 +396,7 @@ void response(int fcgi_sock, Connect *conn, int count_conn)
     conn->cgi_in[1] = -1;
 
     int num_fd = 2;
-    int all_read = 0;
+    //int all_read = 0;
     while (1)
     {// ----- cgi_stdout, cgi_stderr -----
         int ret1, ret2;
@@ -410,18 +409,19 @@ void response(int fcgi_sock, Connect *conn, int count_conn)
         {
             if (ret1 == 1)
             {
-                int ret = read(conn->cgi_out[0], buf_stdout, sizeof(buf_stdout) - 1);
-                if (ret <= 0)
+                n = read(conn->cgi_out[0], buf_stdout, sizeof(buf_stdout) - 1);
+                if (n <= 0)
                 {
-                    fprintf(stderr, "<%s:%d> Error read(): %s\n", __func__, __LINE__, strerror(errno));
+                    if (n < 0)
+                        fprintf(stderr, "<%s:%d> Error read(%d)=%d: %s\n", __func__, __LINE__, conn->cgi_out[0], n, strerror(errno));
                     close(conn->cgi_out[0]);
                     conn->cgi_out[0] = -1;
                     --num_fd;
                 }
                 else
                 {
-                    all_read += ret;
-                    buf_stdout[ret] = 0;
+                    //all_read += n;
+                    buf_stdout[n] = 0;
                     fcgi << buf_stdout;
                 }
             }
@@ -437,19 +437,20 @@ void response(int fcgi_sock, Connect *conn, int count_conn)
         {
             if (ret2 == 1)
             {
-                int ret = read(conn->cgi_err[0], buf_stderr + 8, sizeof(buf_stderr) - 8);
-                if (ret <= 0)
+                n = read(conn->cgi_err[0], buf_stderr + 8, sizeof(buf_stderr) - 8);
+                if (n <= 0)
                 {
-                    fprintf(stderr, "<%s:%d> Error read(): %s\n", __func__, __LINE__, strerror(errno));
+                    if (n < 0)
+                        fprintf(stderr, "<%s:%d> Error read(%d)=%d: %s\n", __func__, __LINE__, conn->cgi_err[0], n, strerror(errno));
                     close(conn->cgi_err[0]);
                     conn->cgi_err[0] = -1;
                     --num_fd;
                 }
                 else
                 {
-                    fcgi.fcgi_set_header(buf_stderr, FCGI_STDERR, ret);
-                    ret = write_timeout(fcgi_sock, buf_stderr, ret + 8, conf->TimeoutCGI);
-                    if (ret <= 0)
+                    fcgi.fcgi_set_header(buf_stderr, FCGI_STDERR, n);
+                    n = write_timeout(fcgi_sock, buf_stderr, n + 8, conf->TimeoutCGI);
+                    if (n <= 0)
                     {
                         close(conn->cgi_err[0]);
                         conn->cgi_err[0] = -1;

@@ -116,7 +116,7 @@ int write_timeout(int fd, const char *buf, int len, int timeout)
 //======================================================================
 int poll_in(int fd1, int fd2, int *ret1, int *ret2, int timeout)
 {
-    int tm, num_fd = 0;
+    int tm, num_fd = 0, i = 1;
     struct pollfd fdrd[2];
 
     *ret1 = *ret2 = 0;
@@ -125,21 +125,25 @@ int poll_in(int fd1, int fd2, int *ret1, int *ret2, int timeout)
 
     if (fd1 > 0)
     {
-        fdrd[num_fd].fd = fd1;
-        fdrd[num_fd].events = POLLIN;
+        fdrd[0].fd = fd1;
+        fdrd[0].events = POLLIN;
         ++num_fd;
+        i = 0;
     }
 
     if (fd2 > 0)
     {
-        fdrd[num_fd].fd = fd2;
-        fdrd[num_fd].events = POLLIN;
+        fdrd[1].fd = fd2;
+        fdrd[1].events = POLLIN;
         ++num_fd;
     }
 
+    if (num_fd == 0)
+        return -1;
+
     while (1)
     {
-        int n = poll(fdrd, num_fd, tm);
+        int n = poll(fdrd + i, num_fd, tm);
         if (n == -1)
         {
             fprintf(stderr, "<%s:%d> Error poll(): %s\n", __func__, __LINE__, strerror(errno));
@@ -150,7 +154,7 @@ int poll_in(int fd1, int fd2, int *ret1, int *ret2, int timeout)
         else if (!n)
             return -1;
 
-        if (fdrd[0].revents)
+        if ((i == 0) && fdrd[0].revents)
         {
             --n;
             if (fdrd[0].revents & POLLIN)

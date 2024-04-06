@@ -1,0 +1,30 @@
+
+server {
+	listen 80 default_server;
+	listen [::]:80 default_server;
+
+	root /var/www/html;
+
+	#................
+	#................
+	#................
+
+	location ~ /script {
+		gzip off;
+		include /etc/nginx/fastcgi_params;
+		fastcgi_pass 127.0.0.1:9003;
+	}
+	
+	location ~ /env.py {
+		gzip off;
+		include /etc/nginx/fastcgi_params;
+		fastcgi_pass 127.0.0.1:9003;
+	}
+
+	location ~ /env.pl {
+		gzip off;
+		include /etc/nginx/fastcgi_params;
+		fastcgi_pass 127.0.0.1:9003;
+	}
+}
+

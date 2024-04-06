@@ -96,6 +96,7 @@ int cgi_fork(FCGI_server& fcgi, Connect *conn)
         }
 
         execl(conn->path.c_str(), conn->path.c_str(), NULL);
+        fprintf(stderr, "<%s:%d> Error execl(%s)\n", __func__, __LINE__, conn->path.c_str());
     to_stdout:
         printf( "Status: 500 Internal Server Error\r\n"
                 "Content-type: text/html; charset=UTF-8\r\n"

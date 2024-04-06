@@ -67,6 +67,7 @@ public:
     std::string  cgi_path;
 };
 //----------------------------------------------------------------------
+extern char **environ;
 extern const Config* const conf;
 //======================================================================
 struct Connect
