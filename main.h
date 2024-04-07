@@ -93,6 +93,8 @@ struct Connect
     }
 };
 //======================================================================
+int cgi(FCGI_server& fcgi, Connect *conn);
+int find_env_var(std::string& s, std::string& var);
 const char *status_resp(int st);
 void kill_script(Connect *conn);
 int wait_pid(Connect *conn);

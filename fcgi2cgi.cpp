@@ -7,9 +7,6 @@ const int backlog = 4096;
 
 static Config c;
 const Config* const conf = &c;
-
-int cgi(FCGI_server& fcgi, Connect *conn);
-int find_env_var(string& s, string& var);
 //======================================================================
 std::mutex mtx_thr;
 std::condition_variable cond_exit_thr;
@@ -187,7 +184,7 @@ void read_conf_file(FILE *fconf)
         }
     }
 
-    printf("**************************************\n\n");
+    printf("**************************************\n");
     printf("ScriptPath: %s\n", conf->cgi_path.c_str());
 }
 //======================================================================
@@ -204,7 +201,7 @@ int main(int argc, char *argv[])
     read_conf_file(fconf);
     fclose(fconf);
 
-    printf("PID: %u; %s:%s\n", getpid(), conf->Host.c_str(), conf->Port.c_str());
+    printf("PID: %u; %s:%s\n\n", getpid(), conf->Host.c_str(), conf->Port.c_str());
 
     if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
     {
@@ -363,7 +360,7 @@ void response(int fcgi_sock, Connect *conn, int count_conn)
     {
         fcgi << "Status: " << status_resp(err) << "\r\n";
         fcgi << "Content-Type: text/html\r\n\r\n";
-        fcgi << "<h3>" << status_resp(err) << "</h3>";
+        fcgi << "<center><h1>" << status_resp(err) << "</h1></center>";
         fcgi.fcgi_end_request();
         return;
     }

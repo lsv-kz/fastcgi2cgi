@@ -226,7 +226,15 @@ int cgi(FCGI_server& fcgi, Connect *conn)
         }
     }
     else
+    {
+        size_t n;
+        if ((n = conf->cgi_path.find(conn->script_name)) == std::string::npos)
+        {
+            fprintf(stderr, "<%s:%d> script (%s) not found\n", __func__, __LINE__, conn->script_name.c_str());
+            return RS404;
+        }
         conn->path = conf->cgi_path;
+    }
 
     return cgi_fork(fcgi, conn);
 }
