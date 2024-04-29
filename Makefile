@@ -12,10 +12,10 @@ OBJS = $(OBJSDIR)/fcgi2cgi.o \
 fcgi2cgi: $(OBJS)
 	$(CC) $(CFLAGS) -o $@  $(OBJS) -lpthread
 
-$(OBJSDIR)/fcgi2cgi.o: fcgi2cgi.cpp main.h string__.h Array.h fcgi_server.h
+$(OBJSDIR)/fcgi2cgi.o: fcgi2cgi.cpp main.h fcgi_server.h
 	$(CC) $(CFLAGS) -c fcgi2cgi.cpp -o $@
 
-$(OBJSDIR)/cgi.o: cgi.cpp main.h fcgi_server.h fcgi_server.h
+$(OBJSDIR)/cgi.o: cgi.cpp main.h fcgi_server.h
 	$(CC) $(CFLAGS) -c cgi.cpp -o $@
 
 $(OBJSDIR)/socket.o: socket.cpp main.h

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstdio>
+#include <cstring>
 #include <cstdlib>
 #include <iomanip>
 
@@ -30,8 +31,6 @@
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 
-#include "string__.h"
-#include "Array.h"
 #include "fcgi_server.h"
 
 //======================================================================

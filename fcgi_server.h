@@ -4,8 +4,8 @@
 #include <cstdio>
 #include <poll.h>
 
-#include "string__.h"
-#include "Array.h"
+#include <string>
+#include <vector>
 
 #define FCGI_RESPONDER  1
 
@@ -43,7 +43,7 @@ class FCGI_server
 
     fcgi_header header = {0, 0, 0};
 
-    Array <String> Param;
+    std::vector <std::string> Param;
     //------------------------------------------------------------------
     int fcgi_read_header()
     {
@@ -279,15 +279,16 @@ public://===============================================================
     //------------------------------------------------------------------
     int error() const { return err; }
     int send_bytes() { return all_send; }
-    int len_param() { return  Param.len(); }
+    int len_param() { return  Param.size(); }
     const char *param(int n)
     {
-        if (n >= Param.len())
+        if (n >= (int)Param.size())
         {
             err = __LINE__;
             return NULL;
         }
-        return Param.get(n)->c_str();
+
+        return Param[n].c_str();
     }
     //------------------------------------------------------------------
     int fcgi_stdin(char *buf, int size)    // *** FCGI_STDIN ***
@@ -382,7 +383,7 @@ public://===============================================================
     {
         if (err)
             return -1;
-        Param.reserve(32);
+        Param.reserve(40);
         int num_par = 0, ret;
         if ((ret = fcgi_read_header()) != 8)
         {
@@ -400,7 +401,7 @@ public://===============================================================
         char buf[buf_size], *p = buf;
         int rd;
         int data_len = 0;
-        String s;
+        std::string s;
         while (header.len > 0)
         {
             if (header.len < (buf_size - data_len))
@@ -501,7 +502,7 @@ public://===============================================================
                     p += name_len;
                 }
 
-                s << "=";
+                s += "=";
 
                 if (val_len > data_len)
                 {
@@ -536,7 +537,7 @@ public://===============================================================
                     p += val_len;
                 }
 
-                Param << s;
+                Param.push_back(s);
                 num_par++;
             }
 

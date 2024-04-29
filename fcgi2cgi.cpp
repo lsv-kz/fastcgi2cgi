@@ -1,5 +1,4 @@
 #include "main.h"
-#include <sys/ioctl.h>
 
 using namespace std;
 //======================================================================
@@ -258,7 +257,7 @@ int main(int argc, char *argv[])
 
         start_thr();
     }
-    
+
     return 0;
 }
 //======================================================================
@@ -361,6 +360,7 @@ void response(int fcgi_sock, Connect *conn, int count_conn)
         fcgi << "Status: " << status_resp(err) << "\r\n";
         fcgi << "Content-Type: text/html\r\n\r\n";
         fcgi << "<center><h1>" << status_resp(err) << "</h1></center>";
+        fcgi << "<hr><center>FastCGI to CGI</center>";
         fcgi.fcgi_end_request();
         return;
     }
@@ -369,8 +369,8 @@ void response(int fcgi_sock, Connect *conn, int count_conn)
 
     for ( ; ; )
     {// --------- fcgi_stdin --------
-        const int size_buf = 4095;
-        char buf[size_buf + 1];
+        const int size_buf = 4096;
+        char buf[size_buf];
         int ret = fcgi.fcgi_stdin(buf, size_buf);
         if (ret < 0)
         {
