@@ -101,22 +101,29 @@ void read_conf_file(FILE *fconf)
         {
             continue;
         }
-        else if (!strcmp(name, "OneScript"))
-        {
-            if (tolower(val[0]) == 'y')
-                c.mode = ONE_SCRIPT;
-            else if (tolower(val[0]) == 'n')
-                c.mode = MULTI_SCRIPTS;
-            else
-            {
-                printf("    ??? <%d> %s         OneScript: y/n\n", line_, buf);
-                exit(EXIT_FAILURE);
-            }
-            ++n;
-        }
         else if (!strcmp(name, "ScriptPath"))
         {
             c.cgi_path = val;
+            struct stat st;
+            if (lstat(c.cgi_path.c_str(), &st))
+            {
+                printf("        <%d> Error lstat(%s): %s\n", line_, val, strerror(errno));
+                exit(EXIT_FAILURE);
+            }
+
+            if (S_ISDIR(st.st_mode))
+            {
+                c.mode = MULTI_SCRIPTS;
+            }
+            else if (S_ISREG(st.st_mode))
+            {
+                c.mode = ONE_SCRIPT;
+            }
+            else
+            {
+                printf("        <%d> Error: file [%s] (!S_ISDIR && !S_ISREG) \n", line_, val);
+                exit(EXIT_FAILURE);
+            }
             ++n;
         }
         else if (!strcmp(name, "Host"))
@@ -156,7 +163,7 @@ void read_conf_file(FILE *fconf)
         printf("        <%d> %s: %s\n", line_, name, val);
     }
 
-    if (n != 6)
+    if (n != 5)
     {
         printf("    ???  Num Parameters != 6, [%d]\n", n);
         exit(EXIT_FAILURE);
